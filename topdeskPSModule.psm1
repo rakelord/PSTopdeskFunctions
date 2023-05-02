@@ -9,6 +9,18 @@ Function Connect-TOPdeskAPI {
     )
     $Script:topdeskAuthenticationHeader = @{'Authorization' = "Basic $([Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($TdLoginName):$($TdSecret)")))"}
     $Script:topdeskUrl = "$TopdeskUrl"
+    $Script:topdeskAuthenticated = $false
+
+    Write-Output "Authenticating to TOPdesk API"
+
+    $testApi = Invoke-RestMethod -Uri "$TopdeskUrl/tas/api/version" -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader
+
+    if ($testApi){
+        $Script:topdeskAuthenticated = $true
+        Write-Output "Successfully authenticated"
+        return ""
+    }
+    Write-Output "Authentication was unsuccessful"
 }
 function Find-TOPdeskConnection {
     if (!$topdeskAuthenticated){

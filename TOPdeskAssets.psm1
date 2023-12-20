@@ -1,4 +1,3 @@
-#Requires -Modules TOPdeskConnect
 function Get-TdAssetTemplates {
     if (Find-TOPdeskConnection) {
         return (Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/templates" -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader).dataSet

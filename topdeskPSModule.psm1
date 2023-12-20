@@ -51,10 +51,10 @@ function Get-TdAssets {
 function Get-TdAssetsByTemplateName {
     param(
         [parameter(mandatory)]
-        [STRING]$TemplateName
+        [STRING]$Name
     )
     if (Find-TOPdeskConnection) {
-        $templateId = Get-TdAssetTemplateByName -Name $TemplateName
+        $templateId = Get-TdAssetTemplateByName -Name $Name
         return (Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/templates/$templateId" -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader).dataSet
     }
 }

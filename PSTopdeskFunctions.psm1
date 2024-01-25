@@ -238,7 +238,7 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
     if (Find-TopdeskConnection) {
         $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).id
         
-        if ($AssignmentObjectID -ne ""){
+        if ((IsNotNULL($AssignmentObjectID)) -AND (IsNotNULL($AssetID))){
 
             $linkObject = @{
                 "assetIds" = @($AssetID)

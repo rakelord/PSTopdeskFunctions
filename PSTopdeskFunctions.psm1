@@ -216,11 +216,12 @@ function Update-TopdeskAsset {
     )
 
     if (Find-TopdeskConnection) {
-        $AssetID = Get-TopdeskAsset -Name $Name -LogToFile $false
+        $AssetID = (Get-TopdeskAsset -Name $Name -LogToFile $False).unid
 
         if (IsNotNULL($AssetID)) {
+            $Data = $Data | ConvertTo-Json -Compress
             Invoke-TryCatchLog -InfoLog "Updating Asset: $Name" -LogToFile $LogToFile -LogType UPDATE -ScriptBlock {
-                Invoke-RestMethod -Uri "$TdUrl/tas/api/assetmgmt/assets/$AssetID" -ContentType "application/json;charset=utf-8" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
+                Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID" -ContentType "application/json" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
             }
             Write-Log -Message $Data -Active $LogToFile
         }
@@ -235,8 +236,8 @@ function Get-TopdeskAsset {
         $LogToFile
     )
     if (Find-TopdeskConnection) {
-        $Asset = Invoke-TryCatchLog -InfoLog "Retrieving Topdesk Asset: $AssetName" -LogToFile $LogToFile -ScriptBlock {
-            $Uri = "$topdeskUrl/tas/api/assetmgmt/assets?showAssignments"+'&$filter'+"=name eq '$AssetName'"
+        $Asset = Invoke-TryCatchLog -InfoLog "Retrieving Topdesk Asset: $Name" -LogToFile $LogToFile -ScriptBlock {
+            $Uri = "$topdeskUrl/tas/api/assetmgmt/assets?showAssignments"+'&$filter'+"=name eq '$Name'"
             (Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader).dataSet
         }
         return $Asset

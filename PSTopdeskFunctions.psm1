@@ -66,6 +66,36 @@ function Find-TopdeskConnection {
     return $true
 }
 
+Function Get-TopdeskSuppliers {
+    param(
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $Suppliers = Invoke-TryCatchLog -InfoLog "Getting all TOPdesk suppliers" -LogToFile $LogToFile -ScriptBlock {
+            (Invoke-RestMethod -Uri "$topdeskUrl/tas/api/suppliers" -Method GET -Headers $topdeskAuthenticationHeader) | Select-Object name,id
+        }
+        return $Suppliers
+    }
+}
+
+Function Get-TopdeskAssetDropdownOptions {
+    param(
+        [parameter(mandatory)]
+        $DropdownName,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $Dropdown = Invoke-TryCatchLog -InfoLog "Retrieving all Topdesk Assets available Dropdown Options: $DropdownName" -LogToFile $LogToFile -ScriptBlock { 
+            (Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/dropdowns/$($DropdownName)?field=name" -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader).results
+        }
+        return $Dropdown
+    }
+}
+
 function Get-TopdeskAssets {
     <#
     .SYNOPSIS
@@ -103,6 +133,7 @@ function Get-TopdeskAssets {
         [switch]
         $excludeArchived,
         [parameter(mandatory)]
+        [ValidateSet("True","False")]
         $LogToFile
     )
 

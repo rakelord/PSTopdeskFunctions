@@ -80,6 +80,22 @@ Function Get-TopdeskSuppliers {
     }
 }
 
+Function Get-TopdeskBranch {
+    param(
+        $BranchName,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $Uri = "$topdeskUrl/tas/api/branches?query=name=='$BranchName'" + '&$fields=name,id,optionalFields1'
+        $Branch = Invoke-TryCatchLog -InfoLog "Trying to retrieve TOPdesk Company with Name: $BranchName" -LogToFile $LogToFile -ScriptBlock {
+            Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader
+        }
+        return $Branch
+    }
+}
+
 Function Get-TopdeskAssetDropdownOptions {
     param(
         [parameter(mandatory)]
@@ -185,5 +201,54 @@ function Get-TopdeskAssets {
         Write-Host "Topdesk Assets Loaded: $($AssetTable.count)"
 
         return $AssetTable
+    }
+}
+
+function Get-TopdeskAsset {
+    param(
+        [parameter(mandatory)]
+        $Name,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $Asset = Invoke-TryCatchLog -InfoLog "Retrieving Topdesk Asset: $AssetName" -LogToFile $LogToFile -ScriptBlock {
+            $Uri = "$topdeskUrl/tas/api/assetmgmt/assets?showAssignments"+'&$filter'+"=name eq '$AssetName'"
+            (Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader).dataSet
+        }
+        return $Asset
+    }
+} 
+
+Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
+    param(
+        [parameter(mandatory)]
+        [ValidateSet("person","branch")]
+        $AssignmentType,
+        [parameter(mandatory)]
+        $AssignmentObjectID, #ID of the Person or Branch depending on above choice
+        [parameter(mandatory)]
+        $AssetName,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+
+    if (Find-TopdeskConnection) {
+        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).id
+        
+        if ($AssignmentObjectID -ne ""){
+
+            $linkObject = @{
+                "assetIds" = @($AssetID)
+                "linkType" = $AssignmentType
+                "linkToId" = $AssignmentObjectID
+            } | ConvertTo-Json -Compress
+
+            Invoke-TryCatchLog -InfoLog "Assigning $AssignmentType : $AssignmentObjectID to Asset: $AssetName" -LogToFile $LogToFile -LogType CREATE -ScriptBlock {
+                Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/assignments" -ContentType "application/json" -Body $linkObject -Method PUT -Headers $topdeskAuthenticationHeader
+            }
+        }
     }
 }

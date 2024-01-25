@@ -204,6 +204,28 @@ function Get-TopdeskAssets {
     }
 }
 
+function Update-TopdeskAsset {
+    Param(
+        [parameter(mandatory)]
+        $Name,
+        [parameter(mandatory)]
+        $Data,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+
+    if (Find-TopdeskConnection) {
+        $AssetID = Get-TopdeskAsset -Name $Name -LogToFile $false
+
+        if (IsNotNULL($AssetID)) {
+            Invoke-TryCatchLog -InfoLog "Updating Asset: $Name" -LogToFile $LogToFile -LogType UPDATE -ScriptBlock {
+                Invoke-RestMethod -Uri "$TdUrl/tas/api/assetmgmt/assets/$AssetID" -ContentType "application/json;charset=utf-8" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
+            }
+            Write-Log -Message $Data -Active $LogToFile
+        }
+    }
+}
 function Get-TopdeskAsset {
     param(
         [parameter(mandatory)]
@@ -220,6 +242,27 @@ function Get-TopdeskAsset {
         return $Asset
     }
 } 
+
+function Disable-TopdeskAsset {
+    param(
+        [parameter(mandatory)]
+        $AssetName,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).id
+
+        $archiveReason = @{
+            reasonId = "919dd4db-cc43-5340-a515-aa934722af75"
+        } | ConvertTo-Json -Compress
+
+        Invoke-TryCatchLog -InfoLog "Archiving Topdesk Asset: $AssetName" -LogType DELETE -LogToFile $LogToFile -ScriptBlock {
+            Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/archive" -ContentType "application/json" -Method POST -body $archiveReason -Headers $topdeskAuthenticationHeader
+        }
+    }
+}
 
 Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
     param(

@@ -102,9 +102,6 @@ function Get-TopdeskAssets {
         [string]$Template,
         [switch]
         $excludeArchived,
-        [switch]
-        $AsHashTable,
-        $HashTableKey,
         [parameter(mandatory)]
         $LogToFile
     )
@@ -152,16 +149,6 @@ function Get-TopdeskAssets {
             Write-Host "Adding in all Custom Parameters for each device - Completed: $CompletedDevice out of $($AssetTable.count)$Loading"
             $Loading += "."
             if ($Loading.length -gt 7){$Loading = "."}
-        }
-
-        if ($AsHashTable){
-            $HashTable = @{}
-            foreach ($device in $AssetTable) {
-                $HashTable[$device."$HashTableKey"] = $device
-            }
-
-            Write-Host "Topdesk Assets Loaded: $($AssetTable.count)"
-            return $HashTable
         }
 
         Write-Host "Topdesk Assets Loaded: $($AssetTable.count)"

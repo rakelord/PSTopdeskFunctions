@@ -92,11 +92,6 @@
             ModuleName = "PSLoggingFunctions"
             RequiredVersion = "1.0.4"
             GUID = "23f92642-4216-4889-84c7-8bd1352e2a0b"
-        },
-        @{
-            ModuleName = "PSHelpFunctions"
-            RequiredVersion = "1.0.1"
-            GUID = "772922b2-b239-49fd-b8fa-b9f60481d6b8"
         }
     )
 

@@ -265,6 +265,23 @@ function Disable-TopdeskAsset {
     }
 }
 
+function Enable-TopdeskAsset {
+    param(
+        [parameter(mandatory)]
+        $AssetName,
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+
+        Invoke-TryCatchLog -InfoLog "Unarchiving Topdesk Asset: $AssetName" -LogType ADD -LogToFile $LogToFile -ScriptBlock {
+            Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/unarchive" -ContentType "application/json" -Method POST -Headers $topdeskAuthenticationHeader
+        }
+    }
+}
+
 Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
     param(
         [parameter(mandatory)]

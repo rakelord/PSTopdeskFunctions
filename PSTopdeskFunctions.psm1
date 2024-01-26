@@ -232,7 +232,7 @@ function Get-TopdeskAsset {
         [parameter(mandatory)]
         $Name,
         [parameter(mandatory)]
-        [ValidateSet("true","false")]
+        [ValidateSet("True","False")]
         $LogToFile
     )
     if (Find-TopdeskConnection) {
@@ -253,14 +253,14 @@ function Disable-TopdeskAsset {
         $LogToFile
     )
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).id
+        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
 
         $archiveReason = @{
             reasonId = "919dd4db-cc43-5340-a515-aa934722af75"
         } | ConvertTo-Json -Compress
 
         Invoke-TryCatchLog -InfoLog "Archiving Topdesk Asset: $AssetName" -LogType DELETE -LogToFile $LogToFile -ScriptBlock {
-            Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/archive" -ContentType "application/json" -Method POST -body $archiveReason -Headers $topdeskAuthenticationHeader
+            Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/archive" -ContentType "application/json" -Method POST -Body $archiveReason -Headers $topdeskAuthenticationHeader
         }
     }
 }
@@ -280,7 +280,7 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
     )
 
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).id
+        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
         
         if ((IsNotNULL($AssignmentObjectID)) -AND (IsNotNULL($AssetID))){
 

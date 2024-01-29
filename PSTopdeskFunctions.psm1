@@ -333,7 +333,7 @@ function New-TopdeskAsset {
         $LogToFile
     )
     if (Find-TopdeskConnection){
-        Invoke-TryCatchLog -InfoLog "Creating new Topdesk Asset: $AssetName" -LogType "CREATE" -LogToFile $LogToFile -ScriptBlock {
+        Invoke-TryCatchLog -InfoLog "Creating new Topdesk Asset: $Data" -LogType "CREATE" -LogToFile $LogToFile -ScriptBlock {
             Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets" -ContentType "application/json" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
         }
     }

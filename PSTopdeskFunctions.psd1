@@ -12,7 +12,7 @@
     RootModule = 'PSTopdeskFunctions'
 
     # Version number of this module.
-    ModuleVersion = '1.2.2'
+    ModuleVersion = '1.2.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -79,7 +79,9 @@
         "Get-TopdeskAsset",
         "Disable-TopdeskAsset",
         "New-TopdeskAssetAssignment",
-        "Enable-TopdeskAsset"
+        "Enable-TopdeskAsset",
+        "New-TopdeskAsset",
+        "Get-TopdeskAssetTemplates"
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -94,6 +96,8 @@
         "Disable-TopdeskAsset",
         "New-TopdeskAssetAssignment",
         "Enable-TopdeskAsset"
+        "New-TopdeskAsset",
+        "Get-TopdeskAssetTemplates"
     )
 
     # Variables to export from this module

@@ -208,8 +208,8 @@ function Get-TopdeskAssets {
 
 function Update-TopdeskAsset {
     Param(
-        [parameter(mandatory)]
-        $Name,
+        $AssetName,
+        $AssetID,
         [parameter(mandatory)]
         $Data,
         [parameter(mandatory)]
@@ -218,11 +218,13 @@ function Update-TopdeskAsset {
     )
 
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name $Name -LogToFile $False).unid
+        if (!$AssetID){
+            $AssetID = (Get-TopdeskAsset -Name $AssetName -LogToFile $False).unid
+        }
 
         if (IsNotNULL($AssetID)) {
             $Data = $Data | ConvertTo-Json -Compress
-            Invoke-TryCatchLog -InfoLog "Updating Asset: $Name" -LogToFile $LogToFile -LogType UPDATE -ScriptBlock {
+            Invoke-TryCatchLog -InfoLog "Updating Asset: $AssetID $AssetName" -LogToFile $LogToFile -LogType UPDATE -ScriptBlock {
                 Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID" -ContentType "application/json" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
             }
             Write-Log -Message $Data -Active $LogToFile
@@ -248,20 +250,22 @@ function Get-TopdeskAsset {
 
 function Disable-TopdeskAsset {
     param(
-        [parameter(mandatory)]
+        $AssetID,
         $AssetName,
         [parameter(mandatory)]
         [ValidateSet("true","false")]
         $LogToFile
     )
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        if (!$AssetID){
+            $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        }
 
         $archiveReason = @{
             reasonId = "919dd4db-cc43-5340-a515-aa934722af75"
         } | ConvertTo-Json -Compress
 
-        Invoke-TryCatchLog -InfoLog "Archiving Topdesk Asset: $AssetName" -LogType DELETE -LogToFile $LogToFile -ScriptBlock {
+        Invoke-TryCatchLog -InfoLog "Archiving Topdesk Asset: $AssetID $AssetName" -LogType DELETE -LogToFile $LogToFile -ScriptBlock {
             Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/archive" -ContentType "application/json" -Method POST -Body $archiveReason -Headers $topdeskAuthenticationHeader
         }
     }
@@ -269,16 +273,18 @@ function Disable-TopdeskAsset {
 
 function Enable-TopdeskAsset {
     param(
-        [parameter(mandatory)]
         $AssetName,
+        $AssetID,
         [parameter(mandatory)]
         [ValidateSet("true","false")]
         $LogToFile
     )
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        if (!$AssetID){
+            $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        }
 
-        Invoke-TryCatchLog -InfoLog "Unarchiving Topdesk Asset: $AssetName" -LogType ADD -LogToFile $LogToFile -ScriptBlock {
+        Invoke-TryCatchLog -InfoLog "Unarchiving Topdesk Asset $AssetID $AssetName" -LogType ADD -LogToFile $LogToFile -ScriptBlock {
             Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/$AssetID/unarchive" -ContentType "application/json" -Method POST -Headers $topdeskAuthenticationHeader
         }
     }
@@ -291,7 +297,7 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
         $AssignmentType,
         [parameter(mandatory)]
         $AssignmentObjectID, #ID of the Person or Branch depending on above choice
-        [parameter(mandatory)]
+        $AssetID,
         $AssetName,
         [parameter(mandatory)]
         [ValidateSet("true","false")]
@@ -299,7 +305,9 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
     )
 
     if (Find-TopdeskConnection) {
-        $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        if (!$AssetID){
+            $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
+        }
         
         if ((IsNotNULL($AssignmentObjectID)) -AND (IsNotNULL($AssetID))){
 
@@ -309,7 +317,7 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
                 "linkToId" = $AssignmentObjectID
             } | ConvertTo-Json -Compress
 
-            Invoke-TryCatchLog -InfoLog "Assigning $AssignmentType : $AssignmentObjectID to Asset: $AssetName" -LogToFile $LogToFile -LogType CREATE -ScriptBlock {
+            Invoke-TryCatchLog -InfoLog "Assigning $AssignmentType : $AssignmentObjectID to Asset $AssetID $AssetName" -LogToFile $LogToFile -LogType CREATE -ScriptBlock {
                 Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets/assignments" -ContentType "application/json" -Body $linkObject -Method PUT -Headers $topdeskAuthenticationHeader
             }
         }

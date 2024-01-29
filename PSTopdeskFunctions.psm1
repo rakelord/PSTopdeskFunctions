@@ -219,7 +219,7 @@ function Update-TopdeskAsset {
 
     if (Find-TopdeskConnection) {
         if (!$AssetID){
-            $AssetID = (Get-TopdeskAsset -Name $AssetName -LogToFile $False).unid
+            $AssetID = (Get-TopdeskAsset -Name "$AssetName" -LogToFile $False).unid
         }
 
         if (IsNotNULL($AssetID)) {

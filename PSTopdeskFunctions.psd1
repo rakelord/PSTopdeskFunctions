@@ -12,7 +12,7 @@
     RootModule = 'PSTopdeskFunctions'
 
     # Version number of this module.
-    ModuleVersion = '1.2.0'
+    ModuleVersion = '1.2.1'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -112,7 +112,7 @@
         @{
             ModuleName = "PSHelpFunctions"
             RequiredVersion = "1.0.2"
-            GUID = "23f92642-4216-4889-84c7-8bd1352e2a0b"
+            GUID = "772922b2-b239-49fd-b8fa-b9f60481d6b8"
         }
     )
 

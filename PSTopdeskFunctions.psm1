@@ -42,13 +42,15 @@ Function Connect-TOPdeskAPI {
     $topdeskAuthenticationHeader = @{'Authorization' = "Basic $([Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($LoginName):$($Secret)")))"}
 
     Write-Log -Message "Connecting to Topdesk API" -Active $LogToFile
+    Write-Host "Connecting to Topdesk API" -Active $LogToFile
 
     $testConnection = Invoke-RestMethod -Uri "$Url/tas/api/version" -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader
     $global:TopdeskAuthenticated = $false
     if ($testConnection){
         $global:topdeskAuthenticated = $true
         $global:topdeskUrl = $Url
-        Write-Log -Message "Topdesk Authenticated: $TopdeskAuthenticated`nTopdesk URL = $TopdeskUrl" -Active $LogToFile
+        Write-Log -Message "Topdesk Authenticated: $TopdeskAuthenticated" -Active $LogToFile
+        Write-Log -Message "Topdesk URL = $TopdeskUrl" -Active $LogToFile
         Write-Host "Topdesk Authenticated: $TopdeskAuthenticated`nTopdesk URL = $TopdeskUrl`nUse Header Connection Variable ="'$topdeskAuthenticationHeader'
         $global:topdeskAuthenticationHeader = $topdeskAuthenticationHeader
         return ""

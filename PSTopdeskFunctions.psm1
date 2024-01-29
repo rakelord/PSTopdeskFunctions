@@ -323,3 +323,31 @@ Function New-TopdeskAssetAssignment { #Assign Companies / Persons to Asset
         }
     }
 }
+
+function New-TopdeskAsset {
+    Param(
+        [parameter(mandatory)]
+        $Data,
+        [parameter(mandatory)]
+        [ValidateSet("True","False")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection){
+        Invoke-TryCatchLog -InfoLog "Creating new Topdesk Asset: $AssetName" -LogType "CREATE" -LogToFile $LogToFile -ScriptBlock {
+            Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/assets" -ContentType "application/json" -Body $Data -Method POST -Headers $topdeskAuthenticationHeader
+        }
+    }
+}
+
+function Get-TopdeskAssetTemplates {
+    Param(
+        [parameter(mandatory)]
+        [ValidateSet("True","False")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection){
+        Invoke-TryCatchLog -InfoLog "Retrieve Topdesk Asset Templates" -LogToFile $LogToFile -ScriptBlock {
+            (Invoke-RestMethod -Uri "$topdeskUrl/tas/api/assetmgmt/templates" -ContentType "application/json" -Method "GET" -Headers $topdeskAuthenticationHeader).dataSet
+        }
+    }
+}

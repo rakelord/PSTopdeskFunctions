@@ -173,11 +173,11 @@ function Get-TopdeskAssets {
 
         # Retrieve the first list of objects, before we are able to filter the list based on the Last object (According to TOPdesks API documentation)
         $pagingUrl = "$($topdeskUrl)/tas/api/assetmgmt/assets?showAssignments&"+'fields=name,id'+$templateQuery+$archivedQuery
-        $AssetTable += (Invoke-RestMethod -Headers $topdeskAuthenticationHeader -Uri $pagingUrl -UseBasicParsing -Method "GET" -ContentType "application/json").dataSet | Select-Object *,@{l='parameters';e={}}
+        $AssetTable += (Invoke-RestMethod -Headers $topdeskAuthenticationHeader -Uri $pagingUrl -UseBasicParsing -Method "GET" -ContentType "application/json").dataSet
         $Results = $AssetTable
         do {
             $pagingUrl = "$($topdeskUrl)/tas/api/assetmgmt/assets?showAssignments&"+'fields=name,id'+'&$filter=name gt '+"'$(($Results | Select-Object -Last 1).name)'"+$templateQuery+$archivedQuery
-            $Results = (Invoke-RestMethod -Headers $topdeskAuthenticationHeader -Uri $pagingUrl -UseBasicParsing -Method "GET" -ContentType "application/json").dataSet | Select-Object *,@{l='parameters';e={}}
+            $Results = (Invoke-RestMethod -Headers $topdeskAuthenticationHeader -Uri $pagingUrl -UseBasicParsing -Method "GET" -ContentType "application/json").dataSet
             $AssetTable += $Results
             $DevicesReturned += 50
             
@@ -187,17 +187,20 @@ function Get-TopdeskAssets {
             if ($Loading.length -gt 7){$Loading = "."}
         } until (!($Results))
 
-        $CompletedDevice = 0
-        foreach ($Result in $AssetTable){
-            $Data = (Invoke-RestMethod -Method GET -Uri "$($topdeskUrl)/tas/api/assetmgmt/assets/$($Result.unid)" -Headers $topdeskAuthenticationHeader -ContentType "application/json").data
-            $Result.parameters += $Data
-            
-            $CompletedDevice += 1
-            
-            Clear-Host
-            Write-Host "Adding in all Custom Parameters for each device - Completed: $CompletedDevice out of $($AssetTable.count)$Loading"
-            $Loading += "."
-            if ($Loading.length -gt 7){$Loading = "."}
+        $AssetTable = Invoke-MultiThreads -RunObjects $AssetTable -APIAuthentication $topdeskAuthenticationHeader -RuntimeName "TopdeskAssetTest" -ScriptBlock {
+            $OutputObject = @()
+            foreach ($RunObject in $args[0][$args[1]..$args[2]]){
+                $OutputObject += @{
+                    unid = $RunObject.unid
+                    name = $RunObject.name
+                    type_id = $RunObject.type_id
+                    type = $RunObject.type
+                    archived = $RunObject.archived
+                    assignments = $RunObject.'@assignments'
+                    parameters = (Invoke-RestMethod -Method "GET" -Uri "https://support.rts.se/tas/api/assetmgmt/assets/$($RunObject.unid)" -Headers $args[3] -ContentType "application/json").data
+                }
+            }
+            $OutputObject
         }
 
         Write-Host "Topdesk Assets Loaded: $($AssetTable.count)"

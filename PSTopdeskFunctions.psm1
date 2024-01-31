@@ -117,33 +117,25 @@ Function Get-TopdeskAssetDropdownOptions {
 function Get-TopdeskAssets {
     <#
     .SYNOPSIS
-    Retrieve all devices from TOPdesk asset registry
+    Retrieve all devices from TOPdesk asset registry.
     
     .DESCRIPTION
-    Retrieve all devices from TOPdesk asset registry and let the user choose if they want a HashTable object or just normal Powershell Object
-    Also the ability to set which property to be the key in the hashtable.
+    Retrieve all devices from TOPdesk asset registry.
     
     .PARAMETER Template
     Which template to return, for example Computer or Mobile phone
 
     .PARAMETER excludeArchived
     Does what is says, it excludes all archived assets
-
-    .PARAMETER HashTableKey
-    The $variable[keyvalue] - The key value that will be the filter
-    
-    .PARAMETER AsHashTable
-    If the function should return a HashTable otherwise it will be normal powershell object.
     
     .PARAMETER LogToFile
     This parameter is connected to the Module PSLoggingFunctions mot information can be found on the GitHub.
     https://github.com/rakelord/PSLoggingFunctions
     
     .EXAMPLE
-    Return a HashTable with the 'name' as Hash Key and create a log
-    Get-TopdeskDevices -Templates ('Computer','Mobile phone') -excludeArchived -AsHashTable -HashTableKey "name" -LogToFile $True
+    Return all Computers and exclude archived
+    Get-TopdeskDevices -Template 'Computer' -excludeArchived -LogToFile $True
     
-    Return a Normal Powershell object and do not Log 
     Get-TopdeskDevices -LogToFile $False
     #>
     Param(

@@ -179,7 +179,7 @@ function Get-TopdeskAssets {
             if ($Loading.length -gt 7){$Loading = "."}
         } until (!($Results))
 
-        $AssetTable = Invoke-MultiThreads -RunObjects $AssetTable -APIAuthentication $topdeskAuthenticationHeader -ScriptBlock {
+        $AssetTableOutput = Invoke-MultiThreads -RunObjects $AssetTable -APIAuthentication $topdeskAuthenticationHeader -ScriptBlock {
             $OutputObject = @()
             foreach ($RunObject in $args[0]){
                 $OutputObject += @{
@@ -195,9 +195,9 @@ function Get-TopdeskAssets {
             $OutputObject
         }
 
-        Write-Host "Topdesk Assets Loaded: $($AssetTable.count)"
+        Write-Host "Topdesk Assets Loaded: $($AssetTableOutput.count)"
 
-        return $AssetTable
+        return $AssetTableOutput
     }
 }
 

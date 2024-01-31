@@ -189,7 +189,7 @@ function Get-TopdeskAssets {
 
         $AssetTable = Invoke-MultiThreads -RunObjects $AssetTable -APIAuthentication $topdeskAuthenticationHeader -ScriptBlock {
             $OutputObject = @()
-            foreach ($RunObject in $args[0][$args[1]..$args[2]]){
+            foreach ($RunObject in $args[0]){
                 $OutputObject += @{
                     unid = $RunObject.unid
                     name = $RunObject.name
@@ -197,7 +197,7 @@ function Get-TopdeskAssets {
                     type = $RunObject.type
                     archived = $RunObject.archived
                     assignments = $RunObject.'@assignments'
-                    parameters = (Invoke-RestMethod -Method "GET" -Uri "https://support.rts.se/tas/api/assetmgmt/assets/$($RunObject.unid)" -Headers $args[3] -ContentType "application/json").data
+                    parameters = (Invoke-RestMethod -Method "GET" -Uri "https://support.rts.se/tas/api/assetmgmt/assets/$($RunObject.unid)" -Headers $args[1] -ContentType "application/json").data
                 }
             }
             $OutputObject

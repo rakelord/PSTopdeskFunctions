@@ -90,8 +90,23 @@ Function Get-TopdeskBranch {
         $LogToFile
     )
     if (Find-TopdeskConnection) {
-        $Uri = "$topdeskUrl/tas/api/branches?query=name=='$BranchName'" + '&$fields=name,id,optionalFields1'
-        $Branch = Invoke-TryCatchLog -InfoLog "Trying to retrieve TOPdesk Company with Name: $BranchName" -LogToFile $LogToFile -ScriptBlock {
+        $Uri = "$topdeskUrl/tas/api/branches?query=name=='$BranchName'" + '&$fields=name,id,optionalFields1,optionalFields2'
+        $Branch = Invoke-TryCatchLog -InfoLog "Retrieving TOPdesk Branch with Name: $BranchName" -LogToFile $LogToFile -ScriptBlock {
+            Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader
+        }
+        return $Branch
+    }
+}
+
+Function Get-TopdeskBranches {
+    param(
+        [parameter(mandatory)]
+        [ValidateSet("true","false")]
+        $LogToFile
+    )
+    if (Find-TopdeskConnection) {
+        $Uri = "$topdeskUrl/tas/api/branches?" + '$fields=name,id,optionalFields1,optionalFields2'
+        $Branch = Invoke-TryCatchLog -InfoLog "Retrieving TOPdesk Branches: $BranchName" -LogToFile $LogToFile -ScriptBlock {
             Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method GET -Headers $topdeskAuthenticationHeader
         }
         return $Branch
